@@ -43,7 +43,7 @@ const createTask = async (req, res, next) => {
     }
 
     const newTask = await Task.create({
-      title: title.trim(),
+      title: title.trim(), //check
     });
 
     res.status(201).json(newTask);
