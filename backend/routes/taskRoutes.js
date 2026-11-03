@@ -6,6 +6,10 @@ const {
   updateTask,
   deleteTask,
 } = require('../controllers/taskController');
+const { protect } = require('../middleware/authMiddleware');
+
+// Chowkidar (Middleware): Is router ki saari routes ko protect kar do
+router.use(protect);
 
 // GET /api/tasks & POST /api/tasks
 router.route('/')

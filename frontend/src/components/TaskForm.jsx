@@ -1,26 +1,33 @@
 import { useState } from 'react';
+import '../styles/TaskForm.css';
 
 /**
- * TaskForm Component
- * Props:
- * - onAddTask: parent function jo naya task add karega
+ * -------------------------------------------------------------
+ * TaskForm.jsx (Naya Task Add Karne Ka Form)
+ * -------------------------------------------------------------
+ * FLOW:
+ * Step 1: User input box me task ka naam type karta hai.
+ * Step 2: "Add Task" button dabata hai.
+ * Step 3: Agar input khali ho to warning message show hoti hai.
+ * Step 4: Input valid ho to task add ho jata hai aur input box reset ho jata hai.
+ * -------------------------------------------------------------
  */
 function TaskForm({ onAddTask }) {
   const [title, setTitle] = useState('');
-  const [formError, setFormError] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Client-side blank check
+    // Blank title check
     if (!title.trim()) {
-      setFormError('Task title cannot be blank');
+      setError('Please enter a task title');
       return;
     }
 
-    setFormError('');
+    setError('');
     onAddTask(title.trim());
-    setTitle(''); // Input field reset
+    setTitle(''); // Input box empty kar diya
   };
 
   return (
@@ -33,14 +40,16 @@ function TaskForm({ onAddTask }) {
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
-            if (formError) setFormError('');
+            if (error) setError('');
           }}
         />
         <button type="submit" className="btn-add">
           Add Task
         </button>
       </form>
-      {formError && <div className="state-box state-error">{formError}</div>}
+
+      {/* Validation Error Message */}
+      {error && <div className="state-box state-error">{error}</div>}
     </div>
   );
 }

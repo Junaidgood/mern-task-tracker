@@ -1,30 +1,38 @@
 import TaskItem from './TaskItem';
+import '../styles/TaskList.css';
 
 /**
- * TaskList Component
- * Handles conditional UI states (loading, error, empty) and lists tasks
+ * -------------------------------------------------------------
+ * TaskList.jsx (Tasks Ko Render Karne Wala Component)
+ * -------------------------------------------------------------
+ * FLOW:
+ * 1. Loading State: Jab backend se tasks load ho rahe hon.
+ * 2. Error State: Jab koi error aye.
+ * 3. Empty State: Jab user ka koi task na ho.
+ * 4. List State: Tasks ko <TaskItem /> me map karna aur onToggle, onEdit, onDelete pass karna.
+ * -------------------------------------------------------------
  */
-function TaskList({ tasks, loading, error, onToggleComplete, onDelete }) {
-  // 1. Loading State
+function TaskList({ tasks, loading, error, onToggleComplete, onEdit, onDelete }) {
+  // 1. Loading
   if (loading) {
-    return <div className="state-box state-loading">⏳ Loading tasks...</div>;
+    return <div className="state-box state-loading">Loading tasks...</div>;
   }
 
-  // 2. Error State
+  // 2. Server Error
   if (error) {
-    return <div className="state-box state-error">❌ {error}</div>;
+    return <div className="state-box state-error">{error}</div>;
   }
 
-  // 3. Empty State
+  // 3. Khali list
   if (!tasks || tasks.length === 0) {
     return (
       <div className="state-box state-empty">
-        📭 No tasks found. Add your first task above!
+        No tasks found. Add your first task above!
       </div>
     );
   }
 
-  // 4. Success State (Tasks List)
+  // 4. Tasks list render
   return (
     <ul className="task-list">
       {tasks.map((task) => (
@@ -32,6 +40,7 @@ function TaskList({ tasks, loading, error, onToggleComplete, onDelete }) {
           key={task._id}
           task={task}
           onToggleComplete={onToggleComplete}
+          onEdit={onEdit}
           onDelete={onDelete}
         />
       ))}

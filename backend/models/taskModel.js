@@ -12,6 +12,12 @@ const taskSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Nayi Field: Task ka maalik (Owner)
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'Task must belong to a user'],
+    },
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt

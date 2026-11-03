@@ -1,0 +1,50 @@
+/* ==========================================
+   TaskTracker Header & Layout Styles
+   ========================================== */
+
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.tracker-header-info {
+  text-align: left;
+}
+
+.tracker-header-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.tracker-header-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.tracker-username {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.btn-logout {
+  padding: 8px 14px;
+  border: 1px solid #fca5a5;
+  background: #ffffff;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+

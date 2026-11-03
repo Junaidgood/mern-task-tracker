@@ -1,19 +1,22 @@
 const Task = require('../models/taskModel');
 
-// @desc    Get all tasks with pagination
+// @desc    Get logged-in user's tasks with pagination
 // @route   GET /api/tasks?page=1&limit=5
-// @access  Public
+// @access  Private (Protected)
 const getTasks = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 5);
     const skip = (page - 1) * limit;
 
-    const totalTasks = await Task.countDocuments();
+    // Filter by logged-in user only
+    const filter = { user: req.session.userId };
+
+    const totalTasks = await Task.countDocuments(filter);
     const totalPages = Math.ceil(totalTasks / limit) || 1;
 
     // Latest tasks pehle dikhane ke liye sort({ createdAt: -1 })
-    const tasks = await Task.find()
+    const tasks = await Task.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -30,9 +33,9 @@ const getTasks = async (req, res, next) => {
   }
 };
 
-// @desc    Create a new task
+// @desc    Create a new task for logged-in user
 // @route   POST /api/tasks
-// @access  Public
+// @access  Private (Protected)
 const createTask = async (req, res, next) => {
   try {
     const { title } = req.body;
@@ -42,8 +45,10 @@ const createTask = async (req, res, next) => {
       return res.status(400).json({ message: 'Task title cannot be blank' });
     }
 
+    // Task ke sath user ki id save ki
     const newTask = await Task.create({
-      title: title.trim(), //check
+      title: title.trim(),
+      user: req.session.userId,
     });
 
     res.status(201).json(newTask);
@@ -52,16 +57,17 @@ const createTask = async (req, res, next) => {
   }
 };
 
-// @desc    Update task completion status
+// @desc    Update task (completion status or title)
 // @route   PATCH /api/tasks/:id
-// @access  Public
+// @access  Private (Protected)
 const updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { completed } = req.body;
+    const { completed, title } = req.body;
 
-    if (typeof completed !== 'boolean') {
-      return res.status(400).json({ message: "'completed' field must be true or false" });
+    // Kuch bhi provide nahi kiya to reject karo
+    if (completed === undefined && title === undefined) {
+      return res.status(400).json({ message: 'Please provide title or completed status to update' });
     }
 
     const task = await Task.findById(id);
@@ -70,7 +76,27 @@ const updateTask = async (req, res, next) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    task.completed = completed;
+    // Ownership check: sirf task ka owner hi update kar sakta hai
+    if (task.user.toString() !== req.session.userId) {
+      return res.status(403).json({ message: 'Not authorized to modify this task' });
+    }
+
+    // Title update validation
+    if (title !== undefined) {
+      if (!title || typeof title !== 'string' || !title.trim()) {
+        return res.status(400).json({ message: 'Task title cannot be blank' });
+      }
+      task.title = title.trim();
+    }
+
+    // Completed status update validation
+    if (completed !== undefined) {
+      if (typeof completed !== 'boolean') {
+        return res.status(400).json({ message: "'completed' field must be true or false" });
+      }
+      task.completed = completed;
+    }
+
     const updatedTask = await task.save();
 
     res.status(200).json(updatedTask);
@@ -79,9 +105,9 @@ const updateTask = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a task
+// @desc    Delete a task (owner only)
 // @route   DELETE /api/tasks/:id
-// @access  Public
+// @access  Private (Protected)
 const deleteTask = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -92,9 +118,13 @@ const deleteTask = async (req, res, next) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
+    // Ownership check: sirf task ka owner hi delete kar sakta hai
+    if (task.user.toString() !== req.session.userId) {
+      return res.status(403).json({ message: 'Not authorized to delete this task' });
+    }
+
     await task.deleteOne();
 
-    // 204 No Content: mentor contract requires 204 with no body
     res.status(204).send();
   } catch (error) {
     next(error);
