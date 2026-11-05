@@ -1,0 +1,62 @@
+/* ==========================================
+   Pagination Controls Styles
+   ========================================== */
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 13.5px;
+  color: #64748b;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pagination-info {
+  background: #f8fafc;
+  color: #475569;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+}
+
+.pagination-info strong {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.btn-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 11px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+  transition: all 0.22s ease;
+  font-family: inherit;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.12);
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
