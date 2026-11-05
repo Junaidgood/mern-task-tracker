@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // User Schema: User ka structure aur validation rules
 const userSchema = new mongoose.Schema(
@@ -24,4 +24,4 @@ const userSchema = new mongoose.Schema(
 // User Model: MongoDB 'users' collection se baat karne ke liye
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;

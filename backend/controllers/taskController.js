@@ -1,9 +1,9 @@
-const Task = require('../models/taskModel');
+import Task from '../models/taskModel.js';
 
 // @desc    Get logged-in user's tasks with pagination
 // @route   GET /api/tasks?page=1&limit=5
 // @access  Private (Protected)
-const getTasks = async (req, res, next) => {
+export const getTasks = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 5);
@@ -36,7 +36,7 @@ const getTasks = async (req, res, next) => {
 // @desc    Create a new task for logged-in user
 // @route   POST /api/tasks
 // @access  Private (Protected)
-const createTask = async (req, res, next) => {
+export const createTask = async (req, res, next) => {
   try {
     const { title } = req.body;
 
@@ -60,7 +60,7 @@ const createTask = async (req, res, next) => {
 // @desc    Update task (completion status or title)
 // @route   PATCH /api/tasks/:id
 // @access  Private (Protected)
-const updateTask = async (req, res, next) => {
+export const updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { completed, title } = req.body;
@@ -108,7 +108,7 @@ const updateTask = async (req, res, next) => {
 // @desc    Delete a task (owner only)
 // @route   DELETE /api/tasks/:id
 // @access  Private (Protected)
-const deleteTask = async (req, res, next) => {
+export const deleteTask = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -129,11 +129,4 @@ const deleteTask = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getTasks,
-  createTask,
-  updateTask,
-  deleteTask,
 };

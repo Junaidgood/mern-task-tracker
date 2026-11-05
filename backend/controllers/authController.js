@@ -1,9 +1,9 @@
-const bcrypt = require('bcrypt');
-const User = require('../models/userModel');
+import bcrypt from 'bcrypt';
+import User from '../models/userModel.js';
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
-const register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
@@ -41,7 +41,7 @@ const register = async (req, res, next) => {
 
 // @desc    Login user
 // @route   POST /api/auth/login
-const login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
@@ -76,7 +76,7 @@ const login = async (req, res, next) => {
 
 // @desc    Logout user
 // @route   POST /api/auth/logout
-const logout = (req, res) => {
+export const logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).json({ message: 'Could not log out, please try again' });
@@ -88,7 +88,7 @@ const logout = (req, res) => {
 
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
-const getMe = async (req, res, next) => {
+export const getMe = async (req, res, next) => {
   try {
     if (!req.session || !req.session.userId) {
       return res.status(401).json({ message: 'Not logged in' });
@@ -103,11 +103,4 @@ const getMe = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  register,
-  login,
-  logout,
-  getMe,
 };

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Schema: defines the shape of documents within the 'tasks' collection
 const taskSchema = new mongoose.Schema(
@@ -27,4 +27,4 @@ const taskSchema = new mongoose.Schema(
 // Model: constructor compiled from Schema definitions; works with the collection
 const Task = mongoose.model('Task', taskSchema);
 
-module.exports = Task;
+export default Task;

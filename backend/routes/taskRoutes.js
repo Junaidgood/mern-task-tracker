@@ -1,12 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getTasks,
   createTask,
   updateTask,
   deleteTask,
-} = require('../controllers/taskController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/taskController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 // Chowkidar (Middleware): Is router ki saari routes ko protect kar do
 router.use(protect);
@@ -21,4 +22,4 @@ router.route('/:id')
   .patch(updateTask)
   .delete(deleteTask);
 
-module.exports = router;
+export default router;
