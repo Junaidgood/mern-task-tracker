@@ -24,12 +24,15 @@ function Pagination({ page, totalPages, totalTasks, onPageChange }) {
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
       >
-        ← Previous
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+        <span>Previous</span>
       </button>
 
-      {/* Page numbers info */}
-      <span>
-        Page {page} of {totalPages} ({totalTasks} tasks)
+      {/* Page numbers info badge */}
+      <span className="pagination-info">
+        Page <strong>{page}</strong> of <strong>{totalPages}</strong> • <strong>{totalTasks}</strong> tasks
       </span>
 
       {/* Next button */}
@@ -39,7 +42,10 @@ function Pagination({ page, totalPages, totalTasks, onPageChange }) {
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
-        Next →
+        <span>Next</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </button>
     </footer>
   );

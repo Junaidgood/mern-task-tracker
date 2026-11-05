@@ -20,8 +20,13 @@ function App() {
   // 1. Session check hone tak loading screen
   if (isLoading) {
     return (
-      <main className="app-container" style={{ textAlign: 'center', padding: '40px' }}>
-        <div className="state-box state-loading">Checking user session...</div>
+      <main className="app-container app-loading-container">
+        <div className="state-box state-loading">
+          <svg className="spinner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10" strokeDasharray="32" strokeLinecap="round" />
+          </svg>
+          <span>Checking user session...</span>
+        </div>
       </main>
     );
   }

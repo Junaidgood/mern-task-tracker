@@ -69,20 +69,55 @@ function TaskTracker() {
   const totalPages = data?.totalPages || 1;
   const totalTasks = data?.totalTasks || 0;
 
+  // Stats calculation
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const pendingCount = tasks.length - completedCount;
+
   return (
     <>
-      {/* Header: Username aur Logout button */}
+      {/* Header: Brand Logo, Username, and Logout button */}
       <header className="tracker-header">
-        <div className="tracker-header-info">
-          <h1 className="tracker-header-title">Task Tracker</h1>
-          <p className="tracker-header-subtitle">
-            Welcome, <strong className="tracker-username">{user?.username}</strong>
-          </p>
+        <div className="tracker-brand">
+          <div className="tracker-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
+          <div className="tracker-header-info">
+            <h1 className="tracker-header-title">Task Tracker</h1>
+            <p className="tracker-header-subtitle">
+              <span className="user-online-dot"></span>
+              Welcome back, <strong className="tracker-username">{user?.username}</strong>
+            </p>
+          </div>
         </div>
-        <button type="button" onClick={logout} className="btn-logout">
-          Logout
+
+        <button type="button" onClick={logout} className="btn-logout" title="Sign out of your account">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>Logout</span>
         </button>
       </header>
+
+      {/* Colorful Quick Stats Bar */}
+      <div className="tracker-stats-bar">
+        <div className="stat-pill stat-total">
+          <span className="stat-dot dot-blue"></span>
+          <span>All Tasks: <strong>{totalTasks}</strong></span>
+        </div>
+        <div className="stat-pill stat-completed">
+          <span className="stat-dot dot-green"></span>
+          <span>Completed: <strong>{completedCount}</strong></span>
+        </div>
+        <div className="stat-pill stat-pending">
+          <span className="stat-dot dot-amber"></span>
+          <span>Pending: <strong>{pendingCount}</strong></span>
+        </div>
+      </div>
 
       {/* Task create form */}
       <TaskForm onAddTask={(title) => addMutation.mutate(title)} />

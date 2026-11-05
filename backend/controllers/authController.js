@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).json({ message: 'Username already taken' });
     }
-                                                                            
+
     // 3. Hash password (never store plain-text password)
     const hashedPassword = await bcrypt.hash(password, 10);
 
