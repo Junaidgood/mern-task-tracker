@@ -48,6 +48,48 @@
   padding: 60px 40px;
 }
 
+/* ==========================================
+   Navigation Tabs (Tasks vs AI Chat)
+   ========================================== */
+
+.app-nav-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.nav-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  font-family: inherit;
+}
+
+.nav-tab-btn:hover {
+  color: #1e293b;
+}
+
+.nav-tab-btn.active {
+  background: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
 /* Page Header */
 .header {
   text-align: center;

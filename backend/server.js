@@ -3,11 +3,19 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+
+// Always resolve .env relative to this file's directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -45,6 +53,7 @@ app.use(
 // 4. API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Root test route
 app.get('/', (req, res) => {
