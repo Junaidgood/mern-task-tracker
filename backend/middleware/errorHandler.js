@@ -19,8 +19,8 @@ export const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ message: messages.join(', ') });
   }
 
-  // Default status code 500 (Internal Server Error)
-  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  // Default status code from err.statusCode or 500 (Internal Server Error)
+  const statusCode = err.statusCode || (res.statusCode && res.statusCode !== 200 ? res.statusCode : 500);
   res.status(statusCode).json({
     message: err.message || 'Internal Server Error',
   });

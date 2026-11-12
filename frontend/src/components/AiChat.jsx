@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { sendChatMessage } from '../services/chatService';
 import '../styles/AiChat.css';
 
 /**
- * AiChat.jsx (AI Chatbot Component)
- * Single-turn chat: User message in, AI reply out.
- * No memory, no streaming, no task access.
+ * AiChat.jsx (AI Task Agent Chat Component)
+ * Sends user message to /api/chat, displays AI reply + tool calls made by the agent.
  */
 function AiChat() {
   const [messages, setMessages] = useState([]);
@@ -13,8 +13,8 @@ function AiChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const endRef = useRef(null);
+  const queryClient = useQueryClient();
 
-  // Auto-scroll to bottom on new message
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
@@ -30,8 +30,12 @@ function AiChat() {
     setLoading(true);
 
     try {
-      const { reply } = await sendChatMessage(text);
-      setMessages((prev) => [...prev, { sender: 'ai', text: reply }]);
+      const { reply, toolCalls } = await sendChatMessage(text);
+      if (toolCalls?.length) {
+        console.log('🔧 Agent Tool Calls:', toolCalls);
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      }
+      setMessages((prev) => [...prev, { sender: 'ai', text: reply, toolCalls }]);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'AI request failed');
     } finally {
@@ -43,10 +47,10 @@ function AiChat() {
     <div className="chat-container">
       {/* Header */}
       <div className="chat-header">
-        <div className="chat-avatar">✨</div>
+        <div className="chat-avatar">🤖</div>
         <div className="chat-header-text">
-          <h2 className="chat-title">AI Assistant</h2>
-          <p className="chat-subtitle">Powered by Gemini AI (Single-turn)</p>
+          <h2 className="chat-title">AI Task Agent</h2>
+          <p className="chat-subtitle">LangChain + Gemini (CRUD Tool Calling)</p>
         </div>
       </div>
 
@@ -58,13 +62,34 @@ function AiChat() {
         {messages.length === 0 ? (
           <div className="chat-empty">
             <span className="chat-empty-icon">💬</span>
-            <p className="chat-empty-text">Start a conversation! Tell it your name to test memory.</p>
+            <p className="chat-empty-text">
+              Ask me to list, create, update, or delete your tasks!
+            </p>
           </div>
         ) : (
           messages.map((m, i) => (
             <div key={i} className={`chat-row ${m.sender}`}>
               <div className="chat-bubble">
-                <span className="chat-sender">{m.sender === 'user' ? 'You' : 'Gemini AI'}</span>
+                <span className="chat-sender">{m.sender === 'user' ? 'You' : 'AI Agent'}</span>
+
+                {/* Tool Calls Log Badge */}
+                {m.toolCalls && m.toolCalls.length > 0 && (
+                  <div className="tool-calls-box">
+                    <div className="tool-calls-heading">🔧 Tools Executed ({m.toolCalls.length})</div>
+                    {m.toolCalls.map((tc, idx) => (
+                      <div key={idx} className="tool-call-item">
+                        <span className="tool-call-name">{tc.tool}</span>
+                        <span className="tool-call-meta">
+                          <strong>Args:</strong> {JSON.stringify(tc.args)}
+                        </span>
+                        <span className="tool-call-meta">
+                          <strong>Result:</strong> {JSON.stringify(tc.result)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <p className="chat-text">{m.text}</p>
               </div>
             </div>
@@ -89,7 +114,7 @@ function AiChat() {
         <input
           type="text"
           className="chat-input"
-          placeholder="Ask AI anything..."
+          placeholder="e.g. Mark my pending tasks as done..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
