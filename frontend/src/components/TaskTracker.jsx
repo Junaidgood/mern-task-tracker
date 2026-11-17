@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import TaskForm from './TaskForm';
 import TaskList from './TaskList';
 import Pagination from './Pagination';
+import TaskCelebration from './TaskCelebration';
 import '../styles/TaskTracker.css';
 
 /**
@@ -21,7 +22,7 @@ import '../styles/TaskTracker.css';
  * Step 7: Logout dabane par session khatam ho jata hai.
  * -------------------------------------------------------------
  */
-function TaskTracker() {
+function TaskTracker({ celebration, onClearCelebration, onTaskSuccess }) {
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
   const { user, logout } = useAuth();
@@ -35,33 +36,52 @@ function TaskTracker() {
   // 2. Naya task add karne ka mutation
   const addMutation = useMutation({
     mutationFn: createTask,
-    onSuccess: () => {
+    onSuccess: (createdTask, title) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setPage(1);
+      onTaskSuccess?.({
+        action: 'Task Added',
+        tasks: [createdTask?.title || title].filter(Boolean),
+      });
     },
   });
 
   // 3. Task status toggle karne ka mutation
   const toggleMutation = useMutation({
     mutationFn: ({ id, completed }) => updateTaskStatus(id, completed),
-    onSuccess: () => {
+    onSuccess: (updatedTask, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      const taskTitle =
+        updatedTask?.title || tasks.find((t) => t._id === variables.id)?.title;
+      onTaskSuccess?.({
+        action: variables.completed ? 'Task Completed' : 'Task Marked Pending',
+        tasks: taskTitle ? [taskTitle] : [],
+      });
     },
   });
 
   // 4. Task title edit karne ka mutation
   const editMutation = useMutation({
     mutationFn: ({ id, title }) => updateTask(id, { title }),
-    onSuccess: () => {
+    onSuccess: (updatedTask, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      onTaskSuccess?.({
+        action: 'Task Updated',
+        tasks: [updatedTask?.title || variables.title].filter(Boolean),
+      });
     },
   });
 
   // 5. Task delete karne ka mutation
   const deleteMutation = useMutation({
     mutationFn: deleteTask,
-    onSuccess: () => {
+    onSuccess: (_data, deletedId) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      const deletedTitle = tasks.find((t) => t._id === deletedId)?.title;
+      onTaskSuccess?.({
+        action: 'Task Deleted',
+        tasks: deletedTitle ? [deletedTitle] : [],
+      });
     },
   });
 
@@ -75,6 +95,12 @@ function TaskTracker() {
 
   return (
     <>
+      <TaskCelebration
+        key={celebration?.id}
+        celebration={celebration}
+        onClose={onClearCelebration}
+      />
+
       {/* Header: Brand Logo, Username, and Logout button */}
       <header className="tracker-header">
         <div className="tracker-brand">

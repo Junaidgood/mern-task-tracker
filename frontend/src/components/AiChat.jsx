@@ -7,9 +7,7 @@ import '../styles/AiChat.css';
  * AiChat.jsx (AI Task Agent Chat Component)
  * Sends user message to /api/chat, displays AI reply + tool calls made by the agent.
  */
-function AiChat() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+function AiChat({ messages, setMessages, input, setInput, onTaskSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const endRef = useRef(null);
@@ -24,16 +22,48 @@ function AiChat() {
     const text = input.trim();
     if (!text || loading) return;
 
+    const history = messages.map((m) => {
+      if (m.sender === 'user') {
+        return { role: 'user', content: m.text };
+      }
+      const toolContext = m.toolCalls?.length
+        ? `\n[Tools executed: ${JSON.stringify(m.toolCalls)}]`
+        : '';
+      return { role: 'assistant', content: `${m.text}${toolContext}` };
+    });
+
     setError('');
     setInput('');
     setMessages((prev) => [...prev, { sender: 'user', text }]);
     setLoading(true);
 
     try {
-      const { reply, toolCalls } = await sendChatMessage(text);
+      const { reply, toolCalls } = await sendChatMessage(text, history);
       if (toolCalls?.length) {
         console.log('🔧 Agent Tool Calls:', toolCalls);
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
+        const mutatingTools = ['create_task', 'update_task', 'delete_task'];
+        const mutatedCalls = toolCalls.filter(
+          (tc) => mutatingTools.includes(tc.tool) && tc.result?.success !== false
+        );
+
+        if (mutatedCalls.length > 0) {
+          const actionLabels = {
+            create_task: 'AI Agent Created Task(s)',
+            update_task: 'AI Agent Updated Task(s)',
+            delete_task: 'AI Agent Deleted Task(s)',
+          };
+          const lastMutated = mutatedCalls[mutatedCalls.length - 1];
+          const affectedTitles = mutatedCalls
+            .map((tc) => tc.result?.task?.title || tc.result?.title || tc.args?.title)
+            .filter(Boolean);
+
+          onTaskSuccess?.({
+            action: actionLabels[lastMutated.tool] || 'AI Agent Updated Tasks',
+            tasks: [...new Set(affectedTitles)],
+          });
+        }
       }
       setMessages((prev) => [...prev, { sender: 'ai', text: reply, toolCalls }]);
     } catch (err) {

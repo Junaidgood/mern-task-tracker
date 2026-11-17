@@ -89,7 +89,7 @@ export const createTaskTools = (userId) => {
     async ({ taskId }) => {
       try {
         const res = await deleteTask(userId, taskId);
-        return JSON.stringify({ success: true, deletedId: res.deletedId });
+        return JSON.stringify({ success: true, deletedId: res.deletedId, title: res.title });
       } catch (err) {
         return JSON.stringify({ success: false, error: err.message });
       }

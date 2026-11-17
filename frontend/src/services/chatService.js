@@ -5,9 +5,9 @@ import axiosClient from '../api/axiosClient';
  * Handles communication with backend /api/chat endpoint
  */
 
-// Send a single message to AI chat endpoint
-export const sendChatMessage = async (message) => {
-  const res = await axiosClient.post('/chat', { message });
-  return res.data; // returns { reply: "..." }
+// Send a message (with optional in-session history) to AI chat endpoint
+export const sendChatMessage = async (message, history = []) => {
+  const res = await axiosClient.post('/chat', { message, history });
+  return res.data; // returns { reply, toolCalls }
 };
 

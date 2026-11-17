@@ -5,13 +5,13 @@ import { runTaskAgent } from '../services/agent.js';
 // @access  Private (Protected)
 export const sendMessage = async (req, res, next) => {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
     if (!message || typeof message !== 'string' || !message.trim()) {
       return res.status(400).json({ message: 'Message is required' });
     }
 
-    const { reply, toolCalls } = await runTaskAgent(req.session.userId, message.trim());
+    const { reply, toolCalls } = await runTaskAgent(req.session.userId, message.trim(), history);
 
     res.status(200).json({ reply, toolCalls });
   } catch (error) {

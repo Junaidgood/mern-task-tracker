@@ -46,5 +46,5 @@ export const deleteTask = async (userId, taskId) => {
   if (!task) throw fail('Task not found', 404);
   if (task.user.toString() !== userId.toString()) throw fail('Not authorized to delete this task', 403);
   await task.deleteOne();
-  return { deletedId: taskId };
+  return { deletedId: taskId, title: task.title };
 };

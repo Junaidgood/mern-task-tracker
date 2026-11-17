@@ -11,7 +11,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
-export const runTaskAgent = async (userId, message) => {
+export const runTaskAgent = async (userId, message, history = []) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
 
@@ -26,11 +26,23 @@ export const runTaskAgent = async (userId, message) => {
     model,
     tools,
     systemPrompt:
-      'You are a helpful task management assistant. Use the provided tools to list, create, update, or delete tasks for the user. Never make up task IDs; always call list_tasks first when needed. If a tool returns an error, explain it clearly.',
+      'You are a helpful task management assistant. Use the provided tools to list, create, update, or delete tasks for the user. Never make up task IDs; always call list_tasks first when needed. Use the current conversation history for context (e.g., if asked to restore or recreate tasks you previously listed or deleted). If a tool returns an error, explain it clearly.',
   });
 
+  const safeHistory = Array.isArray(history)
+    ? history
+        .filter(
+          (m) =>
+            m &&
+            (m.role === 'user' || m.role === 'assistant') &&
+            typeof m.content === 'string' &&
+            m.content.trim()
+        )
+        .map((m) => ({ role: m.role, content: m.content }))
+    : [];
+
   const result = await agent.invoke({
-    messages: [{ role: 'user', content: message }],
+    messages: [...safeHistory, { role: 'user', content: message }],
   });
 
   // Extract tool calls and their outputs from the execution trace
