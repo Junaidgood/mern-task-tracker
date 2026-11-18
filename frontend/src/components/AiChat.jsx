@@ -62,6 +62,7 @@ function AiChat({ messages, setMessages, input, setInput, onTaskSuccess }) {
           onTaskSuccess?.({
             action: actionLabels[lastMutated.tool] || 'AI Agent Updated Tasks',
             tasks: [...new Set(affectedTitles)],
+            showConfetti: lastMutated.tool !== 'delete_task',
           });
         }
       }

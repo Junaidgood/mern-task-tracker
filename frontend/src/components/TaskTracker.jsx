@@ -81,6 +81,7 @@ function TaskTracker({ celebration, onClearCelebration, onTaskSuccess }) {
       onTaskSuccess?.({
         action: 'Task Deleted',
         tasks: deletedTitle ? [deletedTitle] : [],
+        showConfetti: false,
       });
     },
   });

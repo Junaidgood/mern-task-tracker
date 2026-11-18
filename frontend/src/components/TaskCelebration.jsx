@@ -7,7 +7,7 @@ function TaskCelebration({ celebration, onClose }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    if (!celebration || !canvasRef.current) return;
+    if (!celebration || celebration.showConfetti === false || !canvasRef.current) return;
 
     const fire = confetti.create(canvasRef.current, {
       resize: true,

@@ -31,6 +31,7 @@ function Dashboard() {
         id: Date.now(),
         action: payload?.action || 'Task Updated',
         tasks: payload?.tasks || [],
+        showConfetti: payload?.showConfetti !== false,
       });
     }
   };
