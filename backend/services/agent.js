@@ -20,15 +20,6 @@ export const runTaskAgent = async (userId, message, history = []) => {
     apiKey,
   });
 
-  const tools = createTaskTools(userId);
-
-  const agent = createAgent({
-    model,
-    tools,
-    systemPrompt:
-      'You are a helpful task management assistant. Use the provided tools to list, create, update, or delete tasks for the user. Never make up task IDs; always call list_tasks first when needed. Use the current conversation history for context (e.g., if asked to restore or recreate tasks you previously listed or deleted). If a tool returns an error, explain it clearly.',
-  });
-
   const safeHistory = Array.isArray(history)
     ? history
         .filter(
@@ -40,6 +31,28 @@ export const runTaskAgent = async (userId, message, history = []) => {
         )
         .map((m) => ({ role: m.role, content: m.content }))
     : [];
+
+  // Confirmation guardrail: allow delete_task only if assistant previously asked for confirmation and user confirmed
+  const lastAssistantMsg = [...safeHistory].reverse().find((m) => m.role === 'assistant');
+  const askedForConfirmation = Boolean(
+    lastAssistantMsg && /\b(sure|confirm)\b/i.test(lastAssistantMsg.content)
+  );
+  const userDeclined = /^\s*(no|nah|nope|cancel|stop|mat|nahi|don't|do not)\b/i.test(message);
+  const userConfirmed =
+    !userDeclined &&
+    /\b(yes|yeah|yep|yup|sure|confirm|confirmed|ok|okay|proceed|go ahead|do it|delete|haan|han|ji|kar do|kardo|krdo|kr do|bilkul|theek)\b/i.test(
+      message
+    );
+  const allowDelete = askedForConfirmation && userConfirmed;
+
+  const tools = createTaskTools(userId, { allowDelete });
+
+  const agent = createAgent({
+    model,
+    tools,
+    systemPrompt:
+      'You are a helpful task management assistant. Use the provided tools to list, create, update, or delete tasks for the user. Never make up task IDs; always call list_tasks first when needed. SAFETY GUARDRAIL: Before deleting any task(s), always list the exact task title(s) and ask the user "Are you sure you want to delete ...?" and wait for their confirmation before calling delete_task. Use the current conversation history for context (e.g., if asked to restore or recreate tasks you previously listed or deleted). If a tool returns an error, explain it clearly.',
+  });
 
   const result = await agent.invoke({
     messages: [...safeHistory, { role: 'user', content: message }],

@@ -6,7 +6,7 @@ import { listTasks, createTask, updateTask, deleteTask } from '../services/taskS
  * Wraps existing task CRUD functions as LangChain tools for a specific logged-in user.
  * Returns structured JSON (including { success: false, error }) instead of throwing raw exceptions.
  */
-export const createTaskTools = (userId) => {
+export const createTaskTools = (userId, { allowDelete = false } = {}) => {
   // 1. List Tasks Tool
   const listTasksTool = tool(
     async ({ page, limit }) => {
@@ -84,10 +84,18 @@ export const createTaskTools = (userId) => {
     }
   );
 
-  // 4. Delete Task Tool
+  // 4. Delete Task Tool (Protected by confirmation guardrail)
   const deleteTaskTool = tool(
-    async ({ taskId }) => {
+    async ({ taskId, confirmed }) => {
       try {
+        if (!allowDelete || confirmed !== true) {
+          return JSON.stringify({
+            success: false,
+            requiresConfirmation: true,
+            error:
+              'Confirmation guardrail: Deletion is blocked until you ask the user "Are you sure you want to delete <task title(s)>?" and they explicitly confirm in a follow-up message.',
+          });
+        }
         const res = await deleteTask(userId, taskId);
         return JSON.stringify({ success: true, deletedId: res.deletedId, title: res.title });
       } catch (err) {
@@ -97,9 +105,13 @@ export const createTaskTools = (userId) => {
     {
       name: 'delete_task',
       description:
-        'Permanently delete a task using its exact taskId. Call list_tasks first if you do not have the taskId.',
+        'Permanently delete a task using its exact taskId. Call list_tasks first if you do not have the taskId. IMPORTANT: Never call this tool until you have asked the user "Are you sure you want to delete ...?" and received their explicit confirmation.',
       schema: z.object({
         taskId: z.string().describe('The MongoDB ID of the task to delete'),
+        confirmed: z
+          .boolean()
+          .optional()
+          .describe('Set to true ONLY after the user explicitly confirmed deletion in a follow-up message'),
       }),
     }
   );
